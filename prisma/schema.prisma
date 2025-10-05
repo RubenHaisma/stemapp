@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Position {
+  agree
+  disagree
+  neutral
+}
+
+enum ResponseChoice {
+  agree
+  disagree
+  neutral
+  skip
+}
+
+enum Importance {
+  normal
+  important
+}
+
+model Party {
+  id          String          @id @default(uuid())
+  name        String
+  abbreviation String         @unique
+  description String
+  color       String          @default("#333333")
+  website     String          @default("")
+  leader      String          @default("")
+  seats_2023  Int             @default(0)
+  created_at  DateTime        @default(now())
+  positions   PartyPosition[]
+}
+
+model Statement {
+  id          String          @id @default(uuid())
+  text        String          @unique
+  category    String          @default("general")
+  order_index Int
+  created_at  DateTime        @default(now())
+  positions   PartyPosition[]
+  userResponses UserResponse[]
+}
+
+model PartyPosition {
+  id           String    @id @default(uuid())
+  party_id     String
+  statement_id String
+  position     Position
+  explanation  String    @default("")
+  created_at   DateTime  @default(now())
+  party        Party     @relation(fields: [party_id], references: [id], onDelete: Cascade)
+  statement    Statement @relation(fields: [statement_id], references: [id], onDelete: Cascade)
+
+  @@unique([party_id, statement_id])
+  @@index([party_id])
+  @@index([statement_id])
+}
+
+model UserResponse {
+  id           String         @id @default(uuid())
+  session_id   String
+  statement_id String
+  response     ResponseChoice
+  importance   Importance     @default(normal)
+  created_at   DateTime       @default(now())
+  statement    Statement      @relation(fields: [statement_id], references: [id], onDelete: Cascade)
+
+  @@unique([session_id, statement_id])
+  @@index([statement_id])
+}
