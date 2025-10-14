@@ -1,14 +1,18 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Image } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { useState, useEffect } from 'react';
-import { Trophy, CircleCheck as CheckCircle, Circle as XCircle, Minus, RotateCcw } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Circle as XCircle, Minus, RotateCcw } from 'lucide-react-native';
 import type { PartyMatch } from '@/lib/types';
 import { useRouter } from 'expo-router';
+import GlassSection from '@/components/glass/GlassSection';
+import GlassCard from '@/components/glass/GlassCard';
+import GlassButton from '@/components/glass/GlassButton';
 
 export default function ResultsScreen() {
   const { responses, calculateResults, resetQuestionnaire, statements } = useQuestionnaire();
   const [results, setResults] = useState<PartyMatch[]>([]);
   const router = useRouter();
+  const APP_URL = 'https://apps.apple.com/nl/app/destemapp/id6753643142?l=en-GB';
 
   useEffect(() => {
     if (responses.size > 0) {
@@ -43,20 +47,26 @@ export default function ResultsScreen() {
     router.push('/(tabs)/questionnaire');
   };
 
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check DeStemAPP en deel met vrienden: ${APP_URL}`,
+        url: APP_URL,
+        title: 'DeStemAPP',
+      });
+    } catch (e) {
+      // no-op
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Trophy size={48} color="#f59e0b" />
-          <Text style={styles.headerTitle}>Jouw resultaten</Text>
-          <Text style={styles.headerSubtitle}>
-            Gebaseerd op {answeredCount} beantwoorde {answeredCount === 1 ? 'stelling' : 'stellingen'}
-          </Text>
-        </View>
-      </View>
 
       {topMatch && (
-        <View style={styles.topMatchCard}>
+        <GlassCard style={styles.topMatchCard}>
+          {getPartyLogo(topMatch.party) && (
+            <Image source={getPartyLogo(topMatch.party)!} style={styles.topMatchLogo} />
+          )}
           <View style={styles.topMatchBadge}>
             <Text style={styles.topMatchBadgeText}>Beste match</Text>
           </View>
@@ -68,7 +78,7 @@ export default function ResultsScreen() {
           </View>
           <View style={styles.topMatchStats}>
             <View style={styles.topMatchStat}>
-              <CheckCircle size={20} color="#10b981" />
+              <CheckCircle size={20} color="#16a34a" />
               <Text style={styles.topMatchStatText}>{topMatch.agreements} eens</Text>
             </View>
             <View style={styles.topMatchStat}>
@@ -76,17 +86,27 @@ export default function ResultsScreen() {
               <Text style={styles.topMatchStatText}>{topMatch.disagreements} oneens</Text>
             </View>
           </View>
-        </View>
+        </GlassCard>
       )}
 
-      <View style={styles.allResultsSection}>
+      <GlassSection style={styles.allResultsSection}>
         <Text style={styles.sectionTitle}>Alle partijen</Text>
         <View style={styles.resultsList}>
           {results.map((result, index) => (
-            <View key={result.party.id} style={styles.resultCard}>
+            <GlassCard key={result.party.id} style={styles.resultCard}>
               <View style={styles.resultRank}>
-                <Text style={styles.resultRankText}>{index + 1}</Text>
+                <Text
+                  style={[
+                    styles.resultRankText,
+                    index < 3 && { color: '#0ea5e9' },
+                  ]}
+                >
+                  {index + 1}
+                </Text>
               </View>
+              {getPartyLogo(result.party) && (
+                <Image source={getPartyLogo(result.party)!} style={styles.resultLogo} />
+              )}
               <View style={styles.resultInfo}>
                 <Text style={styles.resultName}>{result.party.abbreviation}</Text>
                 <Text style={styles.resultFullName} numberOfLines={1}>
@@ -111,73 +131,97 @@ export default function ResultsScreen() {
                       styles.resultBar,
                       {
                         width: `${result.percentage}%`,
-                        backgroundColor: result.party.color || '#1e40af',
+                        backgroundColor: '#0ea5e9',
                       },
                     ]}
                   />
                 </View>
               </View>
-            </View>
+            </GlassCard>
           ))}
         </View>
-      </View>
+      </GlassSection>
 
-      <View style={styles.actionsSection}>
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={handleReset}
-          activeOpacity={0.8}
-        >
-          <RotateCcw size={20} color="#ffffff" />
-          <Text style={styles.resetButtonText}>Opnieuw beginnen</Text>
-        </TouchableOpacity>
+      <GlassSection style={styles.actionsSection}>
+        <GlassButton title="Opnieuw beginnen" onPress={handleReset} variant="danger" size="large" />
+        <GlassButton title="Bekijk alle partijen" onPress={() => router.push('/(tabs)/parties')} size="large" />
+        <GlassButton title="Deel app" onPress={handleShare} variant="neutral" size="large" />
+      </GlassSection>
 
-        <TouchableOpacity
-          style={styles.partiesButton}
-          onPress={() => router.push('/(tabs)/parties')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.partiesButtonText}>Bekijk alle partijen</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.disclaimer}>
+      <GlassSection style={styles.disclaimer}>
         <Text style={styles.disclaimerText}>
           De StemAPP is bedoeld als hulpmiddel en vervangt niet je eigen onderzoek naar
           politieke partijen en hun standpunten.
         </Text>
-      </View>
+      </GlassSection>
     </ScrollView>
   );
+}
+
+const partyLogos: Record<string, any> = {
+  VVD: require('../../assets/images/VVD_logo_(2020–present).svg.png'),
+  D66: require('../../assets/images/D66_logo_(2019–present).svg.png'),
+  CU: require('../../assets/images/ChristenUnie_logo_compact_blauw.png'),
+  BBB: require('../../assets/images/BoerBurgerBeweging_logo.svg.png'),
+  PVV: require('../../assets/images/logo-pvv.jpg'),
+  VOLT: require('../../assets/images/Logo_Volt_Europa.png'),
+  JA21: require('../../assets/images/JA21_logo.svg.png'),
+  NSC: require('../../assets/images/NSC_Social_Logo_Navy_Back_f3c3d0697c_6fbc1b691c.png'),
+  PVDD: require('../../assets/images/Party_for_the_Animals_logo.svg.png'),
+  'GL-PVDA': require('../../assets/images/gl-pvda.jpeg'),
+  'GL-PVDA_ALT': require('../../assets/images/gl-pvda.jpeg'),
+  CDA: require('../../assets/images/CDA_logo_2021.svg.png'),
+  DENK: require('../../assets/images/denk_logo.png'),
+  SP: require('../../assets/images/sp_logo.avif'),
+  SGP: require('../../assets/images/sgp_logo.png')
+};
+
+function getPartyLogo(party: { id: string; name: string; abbreviation: string }) {
+  const key = (party.abbreviation || '').toUpperCase();
+  if (partyLogos[key]) return partyLogos[key];
+  if (key === 'PVDDA' || key === 'PVD-D' || key === 'PVD D' || key === 'PVD') {
+    return partyLogos['PVDD'];
+  }
+  if (key === 'GL-PVDA' || key === 'GLPVDA' || key.includes('PVDA') || key.includes('GROENLINKS')) {
+    return partyLogos['GL-PVDA'];
+  }
+  const nameUpper = (party.name || '').toUpperCase();
+  if (nameUpper.includes('GROENLINKS') || nameUpper.includes('PvdA'.toUpperCase())) {
+    return partyLogos['GL-PVDA'];
+  }
+  if (nameUpper.includes('PARTIJ VOOR DE DIEREN')) {
+    return partyLogos['PVDD'];
+  }
+  return undefined;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#ffffff',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#ffffff',
   },
   emptyTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#000000',
     marginBottom: 12,
   },
   emptyText: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#525252',
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 24,
   },
   startButton: {
-    backgroundColor: '#1e40af',
+    backgroundColor: '#0ea5e9',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
@@ -187,67 +231,46 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ffffff',
   },
-  header: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 32,
-    paddingHorizontal: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerContent: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#111827',
-    marginTop: 12,
-  },
-  headerSubtitle: {
-    fontSize: 15,
-    color: '#6b7280',
-    marginTop: 4,
-  },
   topMatchCard: {
-    backgroundColor: '#ffffff',
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 24,
     borderRadius: 20,
-    padding: 28,
+    padding: 24,
     alignItems: 'center',
-    shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: '#fef3c7',
   },
   topMatchBadge: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#e0f2fe',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
     marginBottom: 16,
   },
+  topMatchLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    marginBottom: 10,
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
+  },
   topMatchBadgeText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#d97706',
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0ea5e9',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   topMatchName: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#000000',
     textAlign: 'center',
     marginBottom: 4,
   },
   topMatchAbbr: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#737373',
     marginBottom: 20,
   },
   topMatchScore: {
@@ -255,18 +278,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   topMatchPercentage: {
-    fontSize: 56,
-    fontWeight: '700',
-    color: '#1e40af',
+    fontSize: 52,
+    fontWeight: '800',
+    color: '#000000',
   },
   topMatchLabel: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#737373',
     marginTop: 4,
   },
   topMatchStats: {
     flexDirection: 'row',
-    gap: 24,
+    gap: 20,
   },
   topMatchStat: {
     flexDirection: 'row',
@@ -275,8 +298,8 @@ const styles = StyleSheet.create({
   },
   topMatchStatText: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '700',
+    color: '#000000',
   },
   allResultsSection: {
     paddingHorizontal: 20,
@@ -284,51 +307,52 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#000000',
     marginBottom: 16,
   },
   resultsList: {
     gap: 12,
   },
   resultCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+  },
+  resultLogo: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
   },
   resultRank: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#e5e5e5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   resultRankText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#6b7280',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#737373',
   },
   resultInfo: {
     flex: 1,
   },
   resultName: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#000000',
     marginBottom: 2,
   },
   resultFullName: {
     fontSize: 13,
-    color: '#6b7280',
+    color: '#737373',
     marginBottom: 6,
   },
   resultStats: {
@@ -342,21 +366,21 @@ const styles = StyleSheet.create({
   },
   resultStatText: {
     fontSize: 12,
-    color: '#6b7280',
+    color: '#737373',
   },
   resultPercentageContainer: {
     alignItems: 'flex-end',
   },
   resultPercentage: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1e40af',
+    fontWeight: '800',
+    color: '#000000',
     marginBottom: 4,
   },
   resultBarContainer: {
-    width: 60,
+    width: 70,
     height: 6,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e5e5e5',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -369,34 +393,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     gap: 12,
   },
-  resetButton: {
-    backgroundColor: '#ef4444',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  resetButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  partiesButton: {
-    backgroundColor: '#1e40af',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  partiesButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
   disclaimer: {
-    backgroundColor: '#fef3c7',
     marginHorizontal: 20,
     marginBottom: 20,
     padding: 16,

@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { ThumbsUp, ThumbsDown, Minus, Star, ChevronRight, RotateCcw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import GlassCard from '@/components/glass/GlassCard';
+import GlassSection from '@/components/glass/GlassSection';
+import GlassButton from '@/components/glass/GlassButton';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default function QuestionnaireScreen() {
   const {
@@ -71,40 +74,55 @@ export default function QuestionnaireScreen() {
     setSelectedImportance('normal');
   };
 
+  const isSmall = width < 380 || height < 700;
+  const sideButtonWidth = Math.max(
+    100,
+    Math.min(
+      160,
+      Math.floor((width - (isSmall ? 28 : 40) /* nav padding */ - (isSmall ? 16 : 24) /* gaps */ - 44 /* icon approx */) / 2)
+    )
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
+      <GlassSection style={[styles.progressContainer, isSmall && { paddingVertical: 12, paddingHorizontal: 16 }]}>
+        <View style={[styles.progressRow]}>
+          <Text style={[styles.progressText, isSmall && { fontSize: 13 }]}>Stelling {currentIndex + 1}/{statements.length}</Text>
+        </View>
+        <View style={[styles.progressBar, isSmall && { height: 6 }]}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
         </View>
-        <Text style={styles.progressText}>
-          Stelling {currentIndex + 1} van {statements.length}
-        </Text>
-      </View>
+      </GlassSection>
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{currentStatement.category}</Text>
+      <View style={styles.contentFixed}>
+        <View style={[styles.topRow]}>
+          <View style={styles.categoryBadge}>
+            <Text style={[styles.categoryText, isSmall && { fontSize: 12 }]}>{currentStatement.category}</Text>
+          </View>
         </View>
 
-        <View style={styles.statementCard}>
-          <Text style={styles.statementText}>{currentStatement.text}</Text>
-        </View>
+        <GlassCard style={[styles.statementCard, isSmall && { padding: 16 }]}> 
+          <Text style={[styles.statementText, isSmall && { fontSize: 18, lineHeight: 26 }]}>
+            {currentStatement.text}
+          </Text>
+        </GlassCard>
 
-        <View style={styles.importanceSection}>
-          <Text style={styles.sectionLabel}>Hoe belangrijk is deze stelling voor jou?</Text>
+        <View style={[styles.importanceSection, isSmall && { marginBottom: 16 }]}>
+          <Text style={[styles.sectionLabel, isSmall && { fontSize: 14 }]}>Hoe belangrijk is deze stelling voor jou?</Text>
           <View style={styles.importanceButtons}>
             <TouchableOpacity
               style={[
                 styles.importanceButton,
+                isSmall && { paddingVertical: 10 },
                 selectedImportance === 'normal' && styles.importanceButtonActive,
               ]}
               onPress={() => setSelectedImportance('normal')}
-              activeOpacity={0.7}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
                   styles.importanceButtonText,
+                  isSmall && { fontSize: 14 },
                   selectedImportance === 'normal' && styles.importanceButtonTextActive,
                 ]}
               >
@@ -115,10 +133,11 @@ export default function QuestionnaireScreen() {
               style={[
                 styles.importanceButton,
                 styles.importanceButtonImportant,
+                isSmall && { paddingVertical: 10 },
                 selectedImportance === 'important' && styles.importanceButtonImportantActive,
               ]}
               onPress={() => setSelectedImportance('important')}
-              activeOpacity={0.7}
+              activeOpacity={0.8}
             >
               <Star
                 size={16}
@@ -129,6 +148,7 @@ export default function QuestionnaireScreen() {
                 style={[
                   styles.importanceButtonText,
                   styles.importanceButtonImportantText,
+                  isSmall && { fontSize: 14 },
                   selectedImportance === 'important' && styles.importanceButtonTextActive,
                 ]}
               >
@@ -138,76 +158,85 @@ export default function QuestionnaireScreen() {
           </View>
         </View>
 
-        <View style={styles.responseSection}>
-          <Text style={styles.sectionLabel}>Wat is jouw mening?</Text>
-          <View style={styles.responseButtons}>
+        <View style={[styles.responseSection, isSmall && { marginBottom: 8 }]}>
+          <Text style={[styles.sectionLabel, isSmall && { fontSize: 14 }]}>Wat is jouw mening?</Text>
+          <View style={[styles.responseButtons, { flexDirection: 'row' }]}> 
             <TouchableOpacity
-              style={[styles.responseButton, styles.agreeButton]}
+              style={[styles.responseButton, styles.agreeButton, isSmall && { paddingVertical: 12 }]}
               onPress={() => handleResponse('agree')}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
             >
-              <ThumbsUp size={28} color="#ffffff" strokeWidth={2} />
-              <Text style={styles.responseButtonText}>Eens</Text>
+              <ThumbsUp size={24} color="#ffffff" strokeWidth={2} />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.responseButton, styles.neutralButton]}
+              style={[styles.responseButton, styles.neutralButton, isSmall && { paddingVertical: 12 }]}
               onPress={() => handleResponse('neutral')}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
             >
-              <Minus size={28} color="#ffffff" strokeWidth={2.5} />
-              <Text style={styles.responseButtonText}>Neutraal</Text>
+              <Minus size={24} color="#ffffff" strokeWidth={2.5} />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.responseButton, styles.disagreeButton]}
+              style={[styles.responseButton, styles.disagreeButton, isSmall && { paddingVertical: 12 }]}
               onPress={() => handleResponse('disagree')}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
             >
-              <ThumbsDown size={28} color="#ffffff" strokeWidth={2} />
-              <Text style={styles.responseButtonText}>Oneens</Text>
+              <ThumbsDown size={24} color="#ffffff" strokeWidth={2} />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            style={styles.skipButton}
+            style={[styles.skipButton, isSmall && { paddingVertical: 10 }]}
             onPress={() => handleResponse('skip')}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <ChevronRight size={20} color="#6b7280" />
-            <Text style={styles.skipButtonText}>Overslaan</Text>
+            <ChevronRight size={18} color="#6b7280" />
+            <Text style={[styles.skipButtonText, isSmall && { fontSize: 14 }]}>Overslaan</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      <View style={styles.navigationBar}>
-        <TouchableOpacity
-          style={[styles.navButton, currentIndex === 0 && styles.navButtonDisabled]}
-          onPress={handlePrevious}
-          disabled={currentIndex === 0}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navButtonText}>Vorige</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={handleReset}
-          activeOpacity={0.7}
-        >
-          <RotateCcw size={20} color="#ef4444" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.navButton, styles.resultsButton]}
-          onPress={() => router.push('/(tabs)/results')}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.navButtonText, styles.resultsButtonText]}>
-            Bekijk resultaten
-          </Text>
-        </TouchableOpacity>
       </View>
+
+      <GlassSection style={[styles.navigationBar, isSmall && { paddingVertical: 8, paddingHorizontal: 10 }]}>
+        <View style={[styles.navRow, isSmall && { gap: 8 }]}>
+          <View>
+            <GlassButton
+              title="Vorige"
+              onPress={handlePrevious}
+              style={[
+                styles.navButtonGlass,
+                styles.navSideButton,
+                { width: sideButtonWidth, paddingVertical: 10, paddingHorizontal: 12 },
+                isSmall && { paddingVertical: 8, paddingHorizontal: 10 },
+                currentIndex === 0 && styles.navButtonDisabled,
+              ]}
+              variant="neutral"
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[styles.resetIconButton, { padding: isSmall ? 6 : 8 }]}
+            onPress={handleReset}
+            activeOpacity={0.9}
+          >
+            <RotateCcw size={18} color="#ef4444" />
+          </TouchableOpacity>
+
+          <View>
+            <GlassButton
+              title="Bekijk"
+              onPress={() => router.push('/(tabs)/results')}
+              style={[
+                styles.navButtonGlass,
+                styles.navSideButton,
+                { width: sideButtonWidth, paddingVertical: 10, paddingHorizontal: 12 },
+                isSmall && { paddingVertical: 8, paddingHorizontal: 10 },
+              ]}
+              variant="primary"
+            />
+          </View>
+        </View>
+      </GlassSection>
     </View>
   );
 }
@@ -215,48 +244,56 @@ export default function QuestionnaireScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#ffffff',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#ffffff',
   },
   loadingText: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#737373',
   },
   progressContainer: {
-    backgroundColor: '#ffffff',
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   progressBar: {
-    height: 6,
-    backgroundColor: '#e5e7eb',
+    height: 8,
+    backgroundColor: '#e5e5e5',
     borderRadius: 3,
-    marginBottom: 8,
+    marginBottom: 0,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#10b981',
+    backgroundColor: '#0ea5e9',
     borderRadius: 3,
   },
   progressText: {
     fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    fontWeight: '500',
+    color: '#000000',
+    textAlign: 'left',
+    fontWeight: '700',
   },
-  content: {
+  contentFixed: {
     flex: 1,
+    padding: 16,
+    gap: 12,
+    justifyContent: 'flex-start',
   },
-  contentContainer: {
-    padding: 20,
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   categoryBadge: {
     alignSelf: 'flex-start',
@@ -269,35 +306,30 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1e40af',
+    color: '#0ea5e9',
   },
   statementCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 28,
-    marginBottom: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    padding: 24,
     minHeight: 140,
     justifyContent: 'center',
+    flex: 1,
+    minWidth: 0,
   },
   statementText: {
     fontSize: 20,
     lineHeight: 32,
-    color: '#111827',
-    fontWeight: '500',
+    color: '#000000',
+    fontWeight: '700',
     textAlign: 'center',
   },
   importanceSection: {
-    marginBottom: 28,
+    marginBottom: 20,
   },
   sectionLabel: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '700',
+    color: '#000000',
     marginBottom: 12,
   },
   importanceButtons: {
@@ -311,56 +343,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: '#e5e5e5',
     borderRadius: 12,
     paddingVertical: 14,
     gap: 6,
   },
   importanceButtonActive: {
-    borderColor: '#1e40af',
-    backgroundColor: '#1e40af',
+    borderColor: '#0ea5e9',
+    backgroundColor: '#0ea5e9',
   },
   importanceButtonImportant: {
-    borderColor: '#f59e0b',
+    borderColor: '#0ea5e9',
   },
   importanceButtonImportantActive: {
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#0ea5e9',
   },
   importanceButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#6b7280',
+    color: '#525252',
   },
   importanceButtonImportantText: {
-    color: '#f59e0b',
+    color: '#0ea5e9',
   },
   importanceButtonTextActive: {
     color: '#ffffff',
   },
   responseSection: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   responseButtons: {
-    gap: 12,
+    gap: 8,
   },
   responseButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 14,
     borderRadius: 12,
     gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    flex: 1,
   },
   agreeButton: {
     backgroundColor: '#10b981',
   },
   neutralButton: {
-    backgroundColor: '#6b7280',
+    backgroundColor: '#737373',
   },
   disagreeButton: {
     backgroundColor: '#ef4444',
@@ -380,19 +408,29 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: 15,
-    color: '#6b7280',
-    fontWeight: '500',
+    color: '#0ea5e9',
+    fontWeight: '700',
   },
   navigationBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
     gap: 12,
+  },
+  navRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  navSideButton: {
+    width: 160,
+  },
+  navButtonGlass: {
+    borderRadius: 10,
   },
   navButton: {
     flex: 1,
@@ -415,9 +453,9 @@ const styles = StyleSheet.create({
   resultsButtonText: {
     color: '#ffffff',
   },
-  resetButton: {
+  resetIconButton: {
     padding: 12,
     backgroundColor: '#fef2f2',
-    borderRadius: 8,
+    borderRadius: 12,
   },
 });

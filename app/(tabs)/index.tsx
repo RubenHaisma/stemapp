@@ -1,7 +1,10 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Users, FileQuestionMark as FileQuestion, TrendingUp } from 'lucide-react-native';
+import { Users, FileQuestionMark as FileQuestion, TrendingUp, Shield, Sparkles } from 'lucide-react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
+import GlassCard from '@/components/glass/GlassCard';
+import GlassSection from '@/components/glass/GlassSection';
+import GlassButton from '@/components/glass/GlassButton';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -10,72 +13,90 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={styles.hero}>
+        <Text style={styles.heroEyebrow}>De StemAPP</Text>
+        <Text style={styles.heroTitle}>Kies met vertrouwen</Text>
+        <Text style={styles.heroSubtitle}>
+          Beantwoord stellingen en ontdek jouw match met Nederlandse partijen.
+        </Text>
+      </View>
+
       <View style={styles.content}>
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <FileQuestion size={32} color="#1e40af" />
-            <Text style={styles.statNumber}>{statements.length}</Text>
-            <Text style={styles.statLabel}>Stellingen</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Users size={32} color="#1e40af" />
-            <Text style={styles.statNumber}>14</Text>
-            <Text style={styles.statLabel}>Partijen</Text>
-          </View>
+          <GlassCard style={[styles.statCard, styles.statCardLeft]}> 
+            <FileQuestion size={28} color="#000000" />
+            <View style={styles.statTextGroup}>
+              <Text style={styles.statNumber}>{statements.length}</Text>
+              <Text style={styles.statLabel}>Stellingen</Text>
+            </View>
+          </GlassCard>
+          <GlassCard style={[styles.statCard, styles.statCardRight]}>
+            <Users size={28} color="#000000" />
+            <View style={styles.statTextGroup}>
+              <Text style={styles.statNumber}>14</Text>
+              <Text style={styles.statLabel}>Partijen</Text>
+            </View>
+          </GlassCard>
         </View>
 
+        <View style={styles.ctaRow}>
+          <GlassButton
+            title={progress > 0 ? 'Ga door' : 'Start De StemAPP'}
+            onPress={() => router.push('/(tabs)/questionnaire')}
+            size="large"
+          />
+          <GlassButton
+            title="Bekijk partijen"
+            onPress={() => router.push('/(tabs)/parties')}
+            variant="neutral"
+            size="large"
+            style={{ backgroundColor: '#ffffff' }}
+          />
+        </View>
+
+
         {progress > 0 && (
-          <View style={styles.progressCard}>
+          <GlassCard style={styles.progressCard}>
             <View style={styles.progressHeader}>
-              <TrendingUp size={24} color="#1e40af" />
-              <Text style={styles.progressTitle}>Jouw voortgang</Text>
+              <TrendingUp size={20} color="#0f172a" />
+              <Text style={styles.progressTitle}>Voortgang</Text>
+              <Text style={styles.progressValue}>{progress}%</Text>
             </View>
             <View style={styles.progressBarContainer}>
               <View style={[styles.progressBar, { width: `${progress}%` }]} />
             </View>
-            <Text style={styles.progressText}>{progress}% voltooid</Text>
-          </View>
+          </GlassCard>
         )}
 
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={() => router.push('/(tabs)/questionnaire')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.startButtonText}>
-            {progress > 0 ? 'Doorgaan met De StemAPP' : 'Start De StemAPP'}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>Hoe werkt De StemAPP?</Text>
+        <GlassSection style={styles.infoSection} title="Hoe werkt het?">
           <View style={styles.steps}>
             <View style={styles.step}>
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>1</Text>
               </View>
-              <Text style={styles.stepText}>
-                Beantwoord {statements.length} stellingen over actuele politieke onderwerpen
-              </Text>
+              <Text style={styles.stepText}>Beantwoord {statements.length} stellingen</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>2</Text>
               </View>
-              <Text style={styles.stepText}>
-                Markeer belangrijke stellingen voor een betere match
-              </Text>
+              <Text style={styles.stepText}>Markeer wat voor jou belangrijk is</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>3</Text>
               </View>
-              <Text style={styles.stepText}>
-                Zie welke partijen het beste aansluiten bij jouw StemAPP-profiel
-              </Text>
+              <Text style={styles.stepText}>Ontdek je best passende partijen</Text>
             </View>
           </View>
-        </View>
+        </GlassSection>
+
+        <GlassCard style={styles.infoBanner}>
+          <View style={styles.infoBannerRow}>
+            <Shield size={16} color="#0ea5e9" />
+            <Text style={styles.infoBannerText}>Privacy-vriendelijk: jouw antwoorden blijven op jouw toestel.</Text>
+          </View>
+        </GlassCard>
       </View>
     </ScrollView>
   );
@@ -84,103 +105,129 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f6f8fb',
+  },
+  hero: {
+    paddingTop: 28,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  heroEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#737373',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 6,
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#000000',
+  },
+  heroSubtitle: {
+    marginTop: 6,
+    fontSize: 15,
+    color: '#525252',
+    lineHeight: 22,
   },
   content: {
     padding: 20,
   },
+  ctaRow: {
+    flexDirection: 'column',
+    gap: 10,
+    marginBottom: 12,
+  },
   statsContainer: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 12,
+  },
+  statCardLeft: {
+    justifyContent: 'flex-start',
+  },
+  statCardRight: {
+    justifyContent: 'flex-start',
+  },
+  statTextGroup: {
+    gap: 2,
   },
   statNumber: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1e40af',
-    marginTop: 8,
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#000000',
   },
   statLabel: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 4,
+    fontSize: 12,
+    color: '#737373',
   },
   progressCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 20,
+    padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   progressHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   progressTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginLeft: 8,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  progressValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#000000',
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e5e5e5',
     borderRadius: 4,
     marginBottom: 8,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#1e40af',
+    backgroundColor: '#0ea5e9',
     borderRadius: 4,
   },
-  progressText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
   startButton: {
-    backgroundColor: '#1e40af',
     borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    marginBottom: 32,
-    shadowColor: '#1e40af',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  startButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
+    padding: 0,
+    alignItems: 'stretch',
+    marginBottom: 16,
   },
   infoSection: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    padding: 20,
+  },
+  infoBanner: {
+    borderRadius: 14,
+    padding: 14,
+    gap: 8,
+    marginTop: 12,
+  },
+  infoBannerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoBannerText: {
+    fontSize: 13,
+    color: '#525252',
+    flex: 1,
   },
   infoTitle: {
     fontSize: 20,
@@ -189,7 +236,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   steps: {
-    gap: 20,
+    gap: 16,
   },
   step: {
     flexDirection: 'row',
@@ -199,7 +246,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e5e5e5',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -207,12 +254,12 @@ const styles = StyleSheet.create({
   stepNumberText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1e40af',
+    color: '#000000',
   },
   stepText: {
     flex: 1,
     fontSize: 15,
-    color: '#4b5563',
+    color: '#525252',
     lineHeight: 22,
     paddingTop: 4,
   },

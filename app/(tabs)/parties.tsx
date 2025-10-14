@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Users, ExternalLink } from 'lucide-react-native';
 import { useState } from 'react';
+import GlassCard from '@/components/glass/GlassCard';
+import GlassSection from '@/components/glass/GlassSection';
 
 export default function PartiesScreen() {
   const { parties, loading } = useQuestionnaire();
@@ -19,13 +21,13 @@ export default function PartiesScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Users size={40} color="#1e40af" />
+      <GlassSection style={styles.header}>
+        <Users size={40} color="#0f172a" />
         <Text style={styles.headerTitle}>Nederlandse Politieke Partijen</Text>
         <Text style={styles.headerSubtitle}>
           Overzicht van {parties.length} partijen in de Tweede Kamer 2025
         </Text>
-      </View>
+      </GlassSection>
 
       <View style={styles.partiesList}>
         {sortedParties.map((party) => {
@@ -64,7 +66,7 @@ export default function PartiesScreen() {
               </View>
 
               {isExpanded && (
-                <View style={styles.partyDetails}>
+                <GlassCard style={styles.partyDetails}>
                   {party.description && (
                     <View style={styles.descriptionSection}>
                       <Text style={styles.descriptionLabel}>Over de partij</Text>
@@ -74,11 +76,11 @@ export default function PartiesScreen() {
 
                   {party.website && (
                     <View style={styles.websiteSection}>
-                      <ExternalLink size={16} color="#1e40af" />
+                      <ExternalLink size={16} color="#0ea5e9" />
                       <Text style={styles.websiteText}>{party.website}</Text>
                     </View>
                   )}
-                </View>
+                </GlassCard>
               )}
 
               <View style={styles.expandIndicator}>
@@ -91,12 +93,12 @@ export default function PartiesScreen() {
         })}
       </View>
 
-      <View style={styles.footer}>
+      <GlassSection style={styles.footer}>
         <Text style={styles.footerText}>
           Deze informatie is gebaseerd op de huidige politieke situatie en kan veranderen
           tijdens de verkiezingscampagne.
         </Text>
-      </View>
+      </GlassSection>
     </ScrollView>
   );
 }
@@ -104,7 +106,7 @@ export default function PartiesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f6f8fb',
   },
   loadingContainer: {
     flex: 1,
@@ -114,26 +116,23 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#64748b',
   },
   header: {
-    backgroundColor: '#ffffff',
     paddingVertical: 32,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#0f172a',
     marginTop: 12,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 15,
-    color: '#6b7280',
+    color: '#64748b',
     marginTop: 8,
     textAlign: 'center',
   },
@@ -142,14 +141,11 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   partyCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
   },
   partyHeader: {
     flexDirection: 'row',
@@ -169,11 +165,11 @@ const styles = StyleSheet.create({
   },
   partyAbbr: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#0f172a',
   },
   seatsBadge: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e0f2fe',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -181,24 +177,22 @@ const styles = StyleSheet.create({
   seatsText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1e40af',
+    color: '#0369a1',
   },
   partyName: {
     fontSize: 15,
-    color: '#374151',
+    color: '#0f172a',
     marginBottom: 6,
     lineHeight: 22,
   },
   partyLeader: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#64748b',
     fontStyle: 'italic',
   },
   partyDetails: {
     paddingHorizontal: 22,
     paddingBottom: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
   },
   descriptionSection: {
     marginTop: 16,
@@ -206,13 +200,13 @@ const styles = StyleSheet.create({
   },
   descriptionLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '800',
+    color: '#0f172a',
     marginBottom: 8,
   },
   descriptionText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#475569',
     lineHeight: 22,
   },
   websiteSection: {
@@ -223,24 +217,23 @@ const styles = StyleSheet.create({
   },
   websiteText: {
     fontSize: 13,
-    color: '#1e40af',
+    color: '#0ea5e9',
     textDecorationLine: 'underline',
   },
   expandIndicator: {
     paddingVertical: 12,
     paddingHorizontal: 22,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopColor: '#e2e8f0',
     alignItems: 'center',
   },
   expandText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#1e40af',
+    fontWeight: '800',
+    color: '#0ea5e9',
   },
   footer: {
-    backgroundColor: '#fef3c7',
     marginHorizontal: 20,
     marginBottom: 20,
     padding: 16,

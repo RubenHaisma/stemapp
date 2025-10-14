@@ -6,20 +6,40 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: true,
+        headerTransparent: false,
+        headerTitle: 'De StemApp',
         headerStyle: {
-          backgroundColor: '#1e40af',
+          backgroundColor: '#ffffff',
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#000000',
         headerTitleStyle: {
+          fontWeight: '700',
+          color: '#000000',
+        },
+        tabBarActiveTintColor: '#0ea5e9',
+        tabBarInactiveTintColor: '#737373',
+        tabBarLabelStyle: {
+          fontSize: 11,
           fontWeight: '600',
         },
-        tabBarActiveTintColor: '#1e40af',
-        tabBarInactiveTintColor: '#6b7280',
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
+          position: 'absolute',
+          marginHorizontal: 16,
+          marginBottom: 8,
+          height: 64,
+          borderRadius: 20,
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          borderTopWidth: 0,
+          shadowColor: '#000000',
+          shadowOpacity: 0.08,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 0,
         },
+        tabBarItemStyle: {
+          paddingVertical: 6,
+        },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
@@ -53,3 +73,4 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
