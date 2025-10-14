@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Users, ExternalLink } from 'lucide-react-native';
 import { useState } from 'react';
@@ -48,6 +48,9 @@ export default function PartiesScreen() {
                   ]}
                 />
                 <View style={styles.partyInfo}>
+                  {getPartyLogo(party) && (
+                    <Image source={getPartyLogo(party)!} style={styles.partyLogo} />
+                  )}
                   <View style={styles.partyTitleRow}>
                     <Text style={styles.partyAbbr}>{party.abbreviation}</Text>
                     {party.seats_2023 > 0 && (
@@ -103,6 +106,43 @@ export default function PartiesScreen() {
   );
 }
 
+const partyLogos: Record<string, any> = {
+  VVD: require('../../assets/images/VVD_logo_(2020–present).svg.png'),
+  D66: require('../../assets/images/D66_logo_(2019–present).svg.png'),
+  CU: require('../../assets/images/ChristenUnie_logo_compact_blauw.png'),
+  BBB: require('../../assets/images/BoerBurgerBeweging_logo.svg.png'),
+  PVV: require('../../assets/images/logo-pvv.jpg'),
+  VOLT: require('../../assets/images/Logo_Volt_Europa.png'),
+  JA21: require('../../assets/images/JA21_logo.svg.png'),
+  NSC: require('../../assets/images/NSC_Social_Logo_Navy_Back_f3c3d0697c_6fbc1b691c.png'),
+  PVDD: require('../../assets/images/Party_for_the_Animals_logo.svg.png'),
+  'GL-PVDA': require('../../assets/images/gl-pvda.jpeg'),
+  'GL-PVDA_ALT': require('../../assets/images/gl-pvda.jpeg'),
+  CDA: require('../../assets/images/CDA_logo_2021.svg.png'),
+  DENK: require('../../assets/images/denk_logo.png'),
+  SP: require('../../assets/images/sp_logo.avif'),
+  SGP: require('../../assets/images/sgp_logo.png'),
+};
+
+function getPartyLogo(party: { id: string; name: string; abbreviation: string }) {
+  const key = (party.abbreviation || '').toUpperCase();
+  if (partyLogos[key]) return partyLogos[key];
+  if (key === 'PVDDA' || key === 'PVD-D' || key === 'PVD D' || key === 'PVD') {
+    return partyLogos['PVDD'];
+  }
+  if (key === 'GL-PVDA' || key === 'GLPVDA' || key.includes('PVDA') || key.includes('GROENLINKS')) {
+    return partyLogos['GL-PVDA'];
+  }
+  const nameUpper = (party.name || '').toUpperCase();
+  if (nameUpper.includes('GROENLINKS') || nameUpper.includes('PvdA'.toUpperCase())) {
+    return partyLogos['GL-PVDA'];
+  }
+  if (nameUpper.includes('PARTIJ VOOR DE DIEREN')) {
+    return partyLogos['PVDD'];
+  }
+  return undefined;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -156,12 +196,22 @@ const styles = StyleSheet.create({
   partyInfo: {
     flex: 1,
     padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   partyTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
+  },
+  partyLogo: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
   },
   partyAbbr: {
     fontSize: 20,
