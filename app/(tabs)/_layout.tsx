@@ -19,14 +19,16 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#0ea5e9',
         tabBarInactiveTintColor: '#737373',
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: '600',
         },
         tabBarStyle: {
           position: 'absolute',
           marginHorizontal: 16,
           marginBottom: 8,
-          height: 64,
+          height: 72,
+          paddingTop: 8,
+          paddingBottom: 12,
           borderRadius: 20,
           backgroundColor: 'rgba(255,255,255,0.95)',
           borderTopWidth: 0,
@@ -37,8 +39,9 @@ export default function TabLayout() {
           elevation: 0,
         },
         tabBarItemStyle: {
-          paddingVertical: 6,
+          paddingVertical: 4,
         },
+        tabBarSafeAreaInsets: { bottom: 10 },
         tabBarHideOnKeyboard: true,
       }}
     >

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Share, Image } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { useState, useEffect } from 'react';
-import { CircleCheck as CheckCircle, Circle as XCircle, Minus, RotateCcw } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, CircleX as XCircle } from 'lucide-react-native';
 import type { PartyMatch } from '@/lib/types';
 import { useRouter } from 'expo-router';
 import GlassSection from '@/components/glass/GlassSection';
@@ -60,7 +60,7 @@ export default function ResultsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
       {topMatch && (
         <GlassCard style={styles.topMatchCard}>
@@ -199,6 +199,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+  },
+  contentContainer: {
+    paddingBottom: 96, // keep content above floating tab bar
   },
   emptyContainer: {
     flex: 1,
@@ -395,7 +398,7 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 32,
     padding: 16,
     borderRadius: 12,
   },

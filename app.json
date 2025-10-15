@@ -2,7 +2,7 @@
   "expo": {
     "name": "De StemAPP",
     "slug": "de-stemapp",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./public/logo.png",
     "scheme": "myapp",

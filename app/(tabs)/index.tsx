@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const progress = getProgress();
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.hero}>
         <Text style={styles.heroEyebrow}>De StemAPP</Text>
         <Text style={styles.heroTitle}>Kies met vertrouwen</Text>
@@ -106,6 +106,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f6f8fb',
+  },
+  contentContainer: {
+    paddingBottom: 96,
   },
   hero: {
     paddingTop: 28,

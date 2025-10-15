@@ -197,7 +197,7 @@ export default function QuestionnaireScreen() {
         </View>
       </View>
 
-      <GlassSection style={[styles.navigationBar, isSmall && { paddingVertical: 8, paddingHorizontal: 10 }]}>
+      <GlassSection style={[styles.navigationBar, isSmall && { paddingVertical: 8, paddingHorizontal: 10, marginBottom: 16 }]}>
         <View style={[styles.navRow, isSmall && { gap: 8 }]}>
           <View>
             <GlassButton
@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     gap: 12,
+    marginBottom: 16,
   },
   navRow: {
     flexDirection: 'row',
