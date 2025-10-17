@@ -1,37 +1,97 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Users, FileQuestionMark as FileQuestion, TrendingUp, Shield, Sparkles } from 'lucide-react-native';
+import { Users, FileText, TrendingUp, Shield } from 'lucide-react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import GlassCard from '@/components/glass/GlassCard';
 import GlassSection from '@/components/glass/GlassSection';
 import GlassButton from '@/components/glass/GlassButton';
+import { LiquidGlassTheme } from '@/constants/LiquidGlassTheme';
+import { useEffect, useRef } from 'react';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { BlurView } from 'expo-blur';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { statements, getProgress } = useQuestionnaire();
   const progress = getProgress();
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 40,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const footerOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0.7, 1],
+    extrapolate: 'clamp',
+  });
+
+  const footerBlur = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [20, 40],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.hero}>
-        <Text style={styles.heroEyebrow}>De StemAPP</Text>
-        <Text style={styles.heroTitle}>Kies met vertrouwen</Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: false }
+      )}
+      scrollEventThrottle={16}
+    >
+      <Animated.View
+        style={[
+          styles.hero,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        <View style={styles.heroHeader}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroEyebrow}>DE STEMAPP 2025</Text>
+          </View>
+        </View>
+        <Text style={styles.heroTitle}>Kies met{'\n'}vertrouwen</Text>
         <Text style={styles.heroSubtitle}>
-          Beantwoord stellingen en ontdek jouw match met Nederlandse partijen.
+          Ontdek welke politieke partijen het beste bij jouw idealen passen door stellingen te beantwoorden.
         </Text>
-      </View>
+      </Animated.View>
 
       <View style={styles.content}>
         <View style={styles.statsContainer}>
-          <GlassCard style={[styles.statCard, styles.statCardLeft]}> 
-            <FileQuestion size={28} color="#000000" />
+          <GlassCard variant="frosted" style={styles.statCard}>
+            <View style={styles.statIconContainer}>
+              <FileText size={28} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
+            </View>
             <View style={styles.statTextGroup}>
               <Text style={styles.statNumber}>{statements.length}</Text>
               <Text style={styles.statLabel}>Stellingen</Text>
             </View>
           </GlassCard>
-          <GlassCard style={[styles.statCard, styles.statCardRight]}>
-            <Users size={28} color="#000000" />
+          <GlassCard variant="frosted" style={styles.statCard}>
+            <View style={styles.statIconContainer}>
+              <Users size={28} color={LiquidGlassTheme.colors.secondary.main} strokeWidth={2} />
+            </View>
             <View style={styles.statTextGroup}>
               <Text style={styles.statNumber}>14</Text>
               <Text style={styles.statLabel}>Partijen</Text>
@@ -41,7 +101,7 @@ export default function HomeScreen() {
 
         <View style={styles.ctaRow}>
           <GlassButton
-            title={progress > 0 ? 'Ga door' : 'Start De StemAPP'}
+            title={progress > 0 ? 'Ga verder' : 'Start De StemAPP'}
             onPress={() => router.push('/(tabs)/questionnaire')}
             size="large"
           />
@@ -50,54 +110,115 @@ export default function HomeScreen() {
             onPress={() => router.push('/(tabs)/parties')}
             variant="neutral"
             size="large"
-            style={{ backgroundColor: '#ffffff' }}
           />
         </View>
 
 
         {progress > 0 && (
-          <GlassCard style={styles.progressCard}>
+          <GlassCard variant="tinted" style={styles.progressCard}>
             <View style={styles.progressHeader}>
-              <TrendingUp size={20} color="#0f172a" />
+              <View style={styles.progressIconBadge}>
+                <TrendingUp size={18} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
+              </View>
               <Text style={styles.progressTitle}>Voortgang</Text>
               <Text style={styles.progressValue}>{progress}%</Text>
             </View>
             <View style={styles.progressBarContainer}>
               <View style={[styles.progressBar, { width: `${progress}%` }]} />
             </View>
+            <Text style={styles.progressSubtext}>
+              {progress}% voltooid
+            </Text>
           </GlassCard>
         )}
 
-        <GlassSection style={styles.infoSection} title="Hoe werkt het?">
+        <GlassSection variant="elevated" style={styles.infoSection} title="Hoe werkt het?">
           <View style={styles.steps}>
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>1</Text>
+              <View style={[styles.stepNumber, { backgroundColor: LiquidGlassTheme.colors.glass.coloredLight }]}>
+                <Text style={[styles.stepNumberText, { color: LiquidGlassTheme.colors.primary.main }]}>1</Text>
               </View>
-              <Text style={styles.stepText}>Beantwoord {statements.length} stellingen</Text>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>Beantwoord stellingen</Text>
+                <Text style={styles.stepText}>Geef je mening over {statements.length} actuele politieke stellingen</Text>
+              </View>
             </View>
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>2</Text>
+              <View style={[styles.stepNumber, { backgroundColor: LiquidGlassTheme.colors.glass.coloredLight }]}>
+                <Text style={[styles.stepNumberText, { color: LiquidGlassTheme.colors.primary.main }]}>2</Text>
               </View>
-              <Text style={styles.stepText}>Markeer wat voor jou belangrijk is</Text>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>Markeer prioriteiten</Text>
+                <Text style={styles.stepText}>Geef aan welke onderwerpen voor jou het belangrijkst zijn</Text>
+              </View>
             </View>
             <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>3</Text>
+              <View style={[styles.stepNumber, { backgroundColor: LiquidGlassTheme.colors.glass.coloredLight }]}>
+                <Text style={[styles.stepNumberText, { color: LiquidGlassTheme.colors.primary.main }]}>3</Text>
               </View>
-              <Text style={styles.stepText}>Ontdek je best passende partijen</Text>
+              <View style={styles.stepContent}>
+                <Text style={styles.stepTitle}>Ontdek je matches</Text>
+                <Text style={styles.stepText}>Zie direct welke partijen het beste bij jouw idealen passen</Text>
+              </View>
             </View>
           </View>
         </GlassSection>
 
-        <GlassCard style={styles.infoBanner}>
+        <GlassCard variant="tinted" style={styles.infoBanner}>
           <View style={styles.infoBannerRow}>
-            <Shield size={16} color="#0ea5e9" />
-            <Text style={styles.infoBannerText}>Privacy-vriendelijk: jouw antwoorden blijven op jouw toestel.</Text>
+            <View style={styles.privacyIconBadge}>
+              <Shield size={18} color={LiquidGlassTheme.colors.success} strokeWidth={2} />
+            </View>
+            <View style={styles.privacyTextContainer}>
+              <Text style={styles.infoBannerTitle}>Privacy-vriendelijk</Text>
+              <Text style={styles.infoBannerText}>
+                Jouw antwoorden blijven lokaal op jouw toestel
+              </Text>
+            </View>
           </View>
         </GlassCard>
       </View>
+
+      {/* Liquid Glass Scrolling Footer */}
+      {Platform.OS === 'ios' && isLiquidGlassAvailable() ? (
+        <Animated.View
+          style={[
+            styles.liquidFooter,
+            {
+              opacity: footerOpacity,
+            },
+          ]}
+        >
+          <GlassView
+            style={styles.footerGlassView}
+            glassEffectStyle="regular"
+            tintColor="rgba(255, 255, 255, 0.95)"
+          >
+            <View style={styles.footerContent}>
+              <Text style={styles.footerText}>
+                De StemAPP • Tweede Kamer 2025
+              </Text>
+            </View>
+          </GlassView>
+        </Animated.View>
+      ) : (
+        <Animated.View
+          style={[
+            styles.liquidFooter,
+            {
+              opacity: footerOpacity,
+            },
+          ]}
+        >
+          <BlurView intensity={80} tint="light" style={styles.footerBlurView}>
+            <View style={styles.footerContent}>
+              <Text style={styles.footerText}>
+                De StemAPP • Tweede Kamer 2025
+              </Text>
+            </View>
+          </BlurView>
+        </Animated.View>
+      )}
     </ScrollView>
   );
 }
@@ -105,165 +226,237 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fb',
+    backgroundColor: LiquidGlassTheme.colors.background.primary,
   },
   contentContainer: {
-    paddingBottom: 96,
+    paddingBottom: 120,
   },
   hero: {
-    paddingTop: 28,
-    paddingHorizontal: 20,
-    paddingBottom: 8,
+    paddingTop: LiquidGlassTheme.spacing.huge,
+    paddingHorizontal: LiquidGlassTheme.spacing.xl,
+    paddingBottom: LiquidGlassTheme.spacing.xxl,
+  },
+  heroHeader: {
+    marginBottom: LiquidGlassTheme.spacing.lg,
+  },
+  heroBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: LiquidGlassTheme.colors.glass.coloredLight,
+    paddingHorizontal: LiquidGlassTheme.spacing.md,
+    paddingVertical: LiquidGlassTheme.spacing.xs,
+    borderRadius: LiquidGlassTheme.borderRadius.full,
+    gap: LiquidGlassTheme.spacing.xs,
+    borderWidth: 1,
+    borderColor: LiquidGlassTheme.colors.primary.light + '30',
   },
   heroEyebrow: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#737373',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 6,
+    ...LiquidGlassTheme.typography.caption.large,
+    fontWeight: '800',
+    color: LiquidGlassTheme.colors.primary.main,
+    letterSpacing: 1.2,
   },
   heroTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#000000',
+    ...LiquidGlassTheme.typography.display.medium,
+    color: LiquidGlassTheme.colors.text.primary,
+    marginBottom: LiquidGlassTheme.spacing.md,
   },
   heroSubtitle: {
-    marginTop: 6,
-    fontSize: 15,
-    color: '#525252',
-    lineHeight: 22,
+    ...LiquidGlassTheme.typography.body.large,
+    color: LiquidGlassTheme.colors.text.secondary,
+    lineHeight: 26,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: LiquidGlassTheme.spacing.xl,
+    gap: LiquidGlassTheme.spacing.lg,
   },
   ctaRow: {
-    flexDirection: 'column',
-    gap: 10,
-    marginBottom: 12,
+    gap: LiquidGlassTheme.spacing.md,
+    marginBottom: LiquidGlassTheme.spacing.sm,
   },
   statsContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+    gap: LiquidGlassTheme.spacing.md,
+    marginBottom: LiquidGlassTheme.spacing.lg,
   },
   statCard: {
     flex: 1,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
+    borderRadius: LiquidGlassTheme.borderRadius.xl,
+    paddingVertical: LiquidGlassTheme.spacing.xxl,
+    paddingHorizontal: LiquidGlassTheme.spacing.lg,
     alignItems: 'center',
-    gap: 12,
+    gap: LiquidGlassTheme.spacing.md,
   },
-  statCardLeft: {
-    justifyContent: 'flex-start',
-  },
-  statCardRight: {
-    justifyContent: 'flex-start',
+  statIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: LiquidGlassTheme.borderRadius.md,
+    backgroundColor: LiquidGlassTheme.colors.glass.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...LiquidGlassTheme.shadows.card.light,
   },
   statTextGroup: {
-    gap: 2,
+    alignItems: 'center',
+    gap: LiquidGlassTheme.spacing.xs,
   },
   statNumber: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#000000',
+    ...LiquidGlassTheme.typography.display.small,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#737373',
+    ...LiquidGlassTheme.typography.label.small,
+    color: LiquidGlassTheme.colors.text.tertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   progressCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
+    borderRadius: LiquidGlassTheme.borderRadius.lg,
+    padding: LiquidGlassTheme.spacing.xl,
+    marginBottom: LiquidGlassTheme.spacing.lg,
   },
   progressHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: LiquidGlassTheme.spacing.md,
+    gap: LiquidGlassTheme.spacing.md,
+  },
+  progressIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: LiquidGlassTheme.borderRadius.xs,
+    backgroundColor: LiquidGlassTheme.colors.glass.light,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#000000',
+    ...LiquidGlassTheme.typography.label.large,
+    color: LiquidGlassTheme.colors.text.primary,
+    flex: 1,
   },
   progressValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#000000',
+    ...LiquidGlassTheme.typography.headline.medium,
+    color: LiquidGlassTheme.colors.primary.main,
   },
   progressBarContainer: {
-    height: 8,
-    backgroundColor: '#e5e5e5',
-    borderRadius: 4,
-    marginBottom: 8,
+    height: 10,
+    backgroundColor: LiquidGlassTheme.colors.glass.medium,
+    borderRadius: LiquidGlassTheme.borderRadius.xs,
+    overflow: 'hidden',
+    marginBottom: LiquidGlassTheme.spacing.md,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#0ea5e9',
-    borderRadius: 4,
+    backgroundColor: LiquidGlassTheme.colors.primary.main,
+    borderRadius: LiquidGlassTheme.borderRadius.xs,
   },
-  startButton: {
-    borderRadius: 12,
-    padding: 0,
-    alignItems: 'stretch',
-    marginBottom: 16,
+  progressSubtext: {
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.secondary,
+    textAlign: 'center',
   },
   infoSection: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: LiquidGlassTheme.borderRadius.xl,
+    padding: LiquidGlassTheme.spacing.xxl,
   },
   infoBanner: {
-    borderRadius: 14,
-    padding: 14,
-    gap: 8,
-    marginTop: 12,
+    borderRadius: LiquidGlassTheme.borderRadius.lg,
+    padding: LiquidGlassTheme.spacing.xl,
+    marginTop: LiquidGlassTheme.spacing.lg,
   },
   infoBannerRow: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: LiquidGlassTheme.spacing.md,
+  },
+  privacyIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: LiquidGlassTheme.borderRadius.sm,
+    backgroundColor: LiquidGlassTheme.colors.success + '15',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+  },
+  privacyTextContainer: {
+    flex: 1,
+    gap: LiquidGlassTheme.spacing.xs,
+  },
+  infoBannerTitle: {
+    ...LiquidGlassTheme.typography.label.large,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   infoBannerText: {
-    fontSize: 13,
-    color: '#525252',
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 20,
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.secondary,
+    lineHeight: 20,
   },
   steps: {
-    gap: 16,
+    gap: LiquidGlassTheme.spacing.xl,
   },
   step: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: LiquidGlassTheme.spacing.md,
   },
   stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#e5e5e5',
+    width: 44,
+    height: 44,
+    borderRadius: LiquidGlassTheme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    borderWidth: 1.5,
+    borderColor: LiquidGlassTheme.colors.primary.light + '40',
   },
   stepNumberText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
+    ...LiquidGlassTheme.typography.headline.small,
+    fontWeight: '800',
+  },
+  stepContent: {
+    flex: 1,
+    gap: LiquidGlassTheme.spacing.xs,
+    paddingTop: LiquidGlassTheme.spacing.xs,
+  },
+  stepTitle: {
+    ...LiquidGlassTheme.typography.label.large,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   stepText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#525252',
+    ...LiquidGlassTheme.typography.body.medium,
+    color: LiquidGlassTheme.colors.text.secondary,
     lineHeight: 22,
-    paddingTop: 4,
+  },
+  liquidFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 56,
+    overflow: 'hidden',
+  },
+  footerGlassView: {
+    flex: 1,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
+    ...LiquidGlassTheme.shadows.glass.medium,
+  },
+  footerBlurView: {
+    flex: 1,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    ...LiquidGlassTheme.shadows.glass.medium,
+  },
+  footerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 8,
+  },
+  footerText: {
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.tertiary,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });

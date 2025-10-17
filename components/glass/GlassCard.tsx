@@ -1,12 +1,14 @@
 import React from "react";
 import { Platform, StyleProp, View, ViewProps, ViewStyle } from "react-native";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { LiquidGlassTheme } from "@/constants/LiquidGlassTheme";
 
 export type GlassCardProps = ViewProps & {
   style?: StyleProp<ViewStyle>;
   tintColor?: string;
   glassEffectStyle?: "clear" | "regular";
   isInteractive?: boolean;
+  variant?: "base" | "elevated" | "tinted" | "frosted";
 };
 
 export const GlassCard: React.FC<GlassCardProps> = ({
@@ -14,6 +16,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   tintColor,
   glassEffectStyle = "regular",
   isInteractive = false,
+  variant = "elevated",
   children,
   ...rest
 }) => {
@@ -22,7 +25,13 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   if (supportsLiquidGlass) {
     return (
       <GlassView
-        style={style as ViewStyle}
+        style={[
+          {
+            ...LiquidGlassTheme.shadows.glass.medium,
+            borderRadius: LiquidGlassTheme.borderRadius.lg,
+          },
+          style as ViewStyle,
+        ]}
         glassEffectStyle={glassEffectStyle}
         tintColor={tintColor}
         isInteractive={isInteractive}
@@ -33,15 +42,19 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     );
   }
 
+  // Enhanced fallback for non-iOS 26 devices
+  const glassVariantStyle = LiquidGlassTheme.glass[variant];
+
   return (
     <View
       style={[
         {
-          backgroundColor: "rgba(255,255,255,0.6)",
-          borderRadius: 16,
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.35)",
+          backgroundColor: glassVariantStyle.backgroundColor,
+          borderRadius: LiquidGlassTheme.borderRadius.lg,
+          borderWidth: glassVariantStyle.borderWidth,
+          borderColor: glassVariantStyle.borderColor,
           overflow: "hidden",
+          ...LiquidGlassTheme.shadows.glass.medium,
         },
         style as ViewStyle,
       ]}

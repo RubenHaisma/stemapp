@@ -1,13 +1,33 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Animated, Platform } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
-import { Users, ExternalLink } from 'lucide-react-native';
-import { useState } from 'react';
+import { Users, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { useState, useRef, useEffect } from 'react';
 import GlassCard from '@/components/glass/GlassCard';
 import GlassSection from '@/components/glass/GlassSection';
+import { LiquidGlassTheme } from '@/constants/LiquidGlassTheme';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { BlurView } from 'expo-blur';
 
 export default function PartiesScreen() {
   const { parties, loading } = useQuestionnaire();
   const [expandedParty, setExpandedParty] = useState<string | null>(null);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const footerOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0.7, 1],
+    extrapolate: 'clamp',
+  });
 
   if (loading) {
     return (
@@ -20,88 +40,150 @@ export default function PartiesScreen() {
   const sortedParties = [...parties].sort((a, b) => b.seats_2023 - a.seats_2023);
 
   return (
-    <ScrollView style={styles.container}>
-      <GlassSection style={styles.header}>
-        <Users size={40} color="#0f172a" />
-        <Text style={styles.headerTitle}>Nederlandse Politieke Partijen</Text>
-        <Text style={styles.headerSubtitle}>
-          Overzicht van {parties.length} partijen in de Tweede Kamer 2025
-        </Text>
-      </GlassSection>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: false }
+      )}
+      scrollEventThrottle={16}
+    >
+      <Animated.View style={{ opacity: fadeAnim }}>
+        <GlassSection variant="elevated" style={styles.header}>
+          <View style={styles.headerIconBadge}>
+            <Users size={32} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
+          </View>
+          <Text style={styles.headerTitle}>Politieke Partijen</Text>
+          <Text style={styles.headerSubtitle}>
+            {parties.length} partijen in de Tweede Kamer 2025
+          </Text>
+        </GlassSection>
 
-      <View style={styles.partiesList}>
-        {sortedParties.map((party) => {
-          const isExpanded = expandedParty === party.id;
+        <View style={styles.partiesList}>
+          {sortedParties.map((party) => {
+            const isExpanded = expandedParty === party.id;
 
-          return (
-            <TouchableOpacity
-              key={party.id}
-              style={styles.partyCard}
-              onPress={() => setExpandedParty(isExpanded ? null : party.id)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.partyHeader}>
-                <View
-                  style={[
-                    styles.partyColorBar,
-                    { backgroundColor: party.color || '#6b7280' },
-                  ]}
-                />
-                <View style={styles.partyInfo}>
-                  {getPartyLogo(party) && (
-                    <Image source={getPartyLogo(party)!} style={styles.partyLogo} />
-                  )}
-                  <View style={styles.partyTitleRow}>
-                    <Text style={styles.partyAbbr}>{party.abbreviation}</Text>
-                    {party.seats_2023 > 0 && (
-                      <View style={styles.seatsBadge}>
-                        <Text style={styles.seatsText}>{party.seats_2023} zetels</Text>
+            return (
+              <GlassCard
+                key={party.id}
+                variant="elevated"
+                style={styles.partyCard}
+              >
+                <TouchableOpacity
+                  onPress={() => setExpandedParty(isExpanded ? null : party.id)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.partyHeader}>
+                    <View
+                      style={[
+                        styles.partyColorIndicator,
+                        { backgroundColor: party.color || LiquidGlassTheme.colors.text.quaternary },
+                      ]}
+                    />
+                    <View style={styles.partyMainContent}>
+                      {getPartyLogo(party) && (
+                        <Image source={getPartyLogo(party)!} style={styles.partyLogo} />
+                      )}
+                      <View style={styles.partyInfo}>
+                        <View style={styles.partyTitleRow}>
+                          <Text style={styles.partyAbbr}>{party.abbreviation}</Text>
+                        </View>
+                        <Text style={styles.partyName} numberOfLines={isExpanded ? undefined : 1}>
+                          {party.name}
+                        </Text>
+                        {party.leader && (
+                          <Text style={styles.partyLeader}>
+                            Lijsttrekker: {party.leader}
+                          </Text>
+                        )}
+                        {party.seats_2023 > 0 && (
+                          <View style={styles.seatsBadge}>
+                            <Text style={styles.seatsText}>{party.seats_2023} zetels</Text>
+                          </View>
+                        )}
                       </View>
-                    )}
+                      <View style={styles.expandButton}>
+                        {isExpanded ? (
+                          <ChevronUp size={20} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
+                        ) : (
+                          <ChevronDown size={20} color={LiquidGlassTheme.colors.text.tertiary} strokeWidth={2} />
+                        )}
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.partyName} numberOfLines={isExpanded ? undefined : 2}>
-                    {party.name}
-                  </Text>
-                  {party.leader && (
-                    <Text style={styles.partyLeader}>Lijsttrekker: {party.leader}</Text>
-                  )}
-                </View>
-              </View>
 
-              {isExpanded && (
-                <GlassCard style={styles.partyDetails}>
-                  {party.description && (
-                    <View style={styles.descriptionSection}>
-                      <Text style={styles.descriptionLabel}>Over de partij</Text>
-                      <Text style={styles.descriptionText}>{party.description}</Text>
+                  {isExpanded && (
+                    <View style={styles.partyDetails}>
+                      {party.description && (
+                        <View style={styles.descriptionSection}>
+                          <Text style={styles.descriptionLabel}>Over de partij</Text>
+                          <Text style={styles.descriptionText}>{party.description}</Text>
+                        </View>
+                      )}
+
+                      {party.website && (
+                        <View style={styles.websiteSection}>
+                          <ExternalLink size={18} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
+                          <Text style={styles.websiteText}>{party.website}</Text>
+                        </View>
+                      )}
                     </View>
                   )}
+                </TouchableOpacity>
+              </GlassCard>
+            );
+          })}
+        </View>
 
-                  {party.website && (
-                    <View style={styles.websiteSection}>
-                      <ExternalLink size={16} color="#0ea5e9" />
-                      <Text style={styles.websiteText}>{party.website}</Text>
-                    </View>
-                  )}
-                </GlassCard>
-              )}
+        <GlassCard variant="tinted" style={styles.footer}>
+          <Text style={styles.footerText}>
+            Deze informatie is gebaseerd op de huidige politieke situatie en kan veranderen
+            tijdens de verkiezingscampagne.
+          </Text>
+        </GlassCard>
+      </Animated.View>
 
-              <View style={styles.expandIndicator}>
-                <Text style={styles.expandText}>
-                  {isExpanded ? 'Inkleppen' : 'Meer informatie'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      <GlassSection style={styles.footer}>
-        <Text style={styles.footerText}>
-          Deze informatie is gebaseerd op de huidige politieke situatie en kan veranderen
-          tijdens de verkiezingscampagne.
-        </Text>
-      </GlassSection>
+      {/* Liquid Glass Scrolling Footer */}
+      {Platform.OS === 'ios' && isLiquidGlassAvailable() ? (
+        <Animated.View
+          style={[
+            styles.liquidFooter,
+            {
+              opacity: footerOpacity,
+            },
+          ]}
+        >
+          <GlassView
+            style={styles.footerGlassView}
+            glassEffectStyle="regular"
+            tintColor="rgba(255, 255, 255, 0.95)"
+          >
+            <View style={styles.footerContent}>
+              <Text style={styles.footerFooterText}>
+                De StemAPP • Tweede Kamer 2025
+              </Text>
+            </View>
+          </GlassView>
+        </Animated.View>
+      ) : (
+        <Animated.View
+          style={[
+            styles.liquidFooter,
+            {
+              opacity: footerOpacity,
+            },
+          ]}
+        >
+          <BlurView intensity={80} tint="light" style={styles.footerBlurView}>
+            <View style={styles.footerContent}>
+              <Text style={styles.footerFooterText}>
+                De StemAPP • Tweede Kamer 2025
+              </Text>
+            </View>
+          </BlurView>
+        </Animated.View>
+      )}
     </ScrollView>
   );
 }
@@ -146,153 +228,198 @@ function getPartyLogo(party: { id: string; name: string; abbreviation: string })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fb',
+    backgroundColor: LiquidGlassTheme.colors.background.primary,
+  },
+  contentContainer: {
+    paddingBottom: 120,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: LiquidGlassTheme.colors.background.primary,
   },
   loadingText: {
-    fontSize: 16,
-    color: '#64748b',
+    ...LiquidGlassTheme.typography.body.large,
+    color: LiquidGlassTheme.colors.text.tertiary,
   },
   header: {
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+    paddingVertical: LiquidGlassTheme.spacing.xxxl,
+    paddingHorizontal: LiquidGlassTheme.spacing.xxl,
+    margin: LiquidGlassTheme.spacing.xl,
     alignItems: 'center',
   },
+  headerIconBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: LiquidGlassTheme.borderRadius.lg,
+    backgroundColor: LiquidGlassTheme.colors.glass.coloredLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: LiquidGlassTheme.spacing.lg,
+    borderWidth: 1.5,
+    borderColor: LiquidGlassTheme.colors.primary.light + '30',
+  },
   headerTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginTop: 12,
+    ...LiquidGlassTheme.typography.display.small,
+    color: LiquidGlassTheme.colors.text.primary,
+    marginBottom: LiquidGlassTheme.spacing.sm,
     textAlign: 'center',
   },
   headerSubtitle: {
-    fontSize: 15,
-    color: '#64748b',
-    marginTop: 8,
+    ...LiquidGlassTheme.typography.body.large,
+    color: LiquidGlassTheme.colors.text.secondary,
     textAlign: 'center',
   },
   partiesList: {
-    padding: 20,
-    gap: 16,
+    paddingHorizontal: LiquidGlassTheme.spacing.xl,
+    gap: LiquidGlassTheme.spacing.md,
   },
   partyCard: {
-    borderRadius: 16,
+    borderRadius: LiquidGlassTheme.borderRadius.xl,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    backgroundColor: '#ffffff',
   },
   partyHeader: {
     flexDirection: 'row',
   },
-  partyColorBar: {
-    width: 6,
+  partyColorIndicator: {
+    width: 4,
+    alignSelf: 'stretch',
+    borderTopLeftRadius: LiquidGlassTheme.borderRadius.xl,
+  },
+  partyMainContent: {
+    flex: 1,
+    flexDirection: 'row',
+    padding: LiquidGlassTheme.spacing.lg,
+    alignItems: 'center',
+    gap: LiquidGlassTheme.spacing.md,
+  },
+  partyLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: LiquidGlassTheme.borderRadius.sm,
+    resizeMode: 'contain',
+    backgroundColor: LiquidGlassTheme.colors.background.secondary,
+    ...LiquidGlassTheme.shadows.card.light,
   },
   partyInfo: {
     flex: 1,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    gap: LiquidGlassTheme.spacing.xs,
   },
   partyTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  partyLogo: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    resizeMode: 'contain',
-    backgroundColor: '#ffffff',
+    gap: LiquidGlassTheme.spacing.sm,
   },
   partyAbbr: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0f172a',
-  },
-  seatsBadge: {
-    backgroundColor: '#e0f2fe',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  seatsText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#0369a1',
+    ...LiquidGlassTheme.typography.headline.medium,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   partyName: {
-    fontSize: 15,
-    color: '#0f172a',
-    marginBottom: 6,
-    lineHeight: 22,
+    ...LiquidGlassTheme.typography.body.medium,
+    color: LiquidGlassTheme.colors.text.secondary,
   },
   partyLeader: {
-    fontSize: 14,
-    color: '#64748b',
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.tertiary,
     fontStyle: 'italic',
   },
+  seatsBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: LiquidGlassTheme.colors.glass.coloredMedium,
+    paddingHorizontal: LiquidGlassTheme.spacing.md,
+    paddingVertical: LiquidGlassTheme.spacing.xs,
+    borderRadius: LiquidGlassTheme.borderRadius.full,
+    marginTop: LiquidGlassTheme.spacing.xs,
+  },
+  seatsText: {
+    ...LiquidGlassTheme.typography.label.small,
+    color: LiquidGlassTheme.colors.primary.dark,
+    fontWeight: '700',
+  },
+  expandButton: {
+    width: 36,
+    height: 36,
+    borderRadius: LiquidGlassTheme.borderRadius.sm,
+    backgroundColor: LiquidGlassTheme.colors.glass.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   partyDetails: {
-    paddingHorizontal: 22,
-    paddingBottom: 16,
+    paddingHorizontal: LiquidGlassTheme.spacing.xl,
+    paddingBottom: LiquidGlassTheme.spacing.lg,
+    paddingTop: LiquidGlassTheme.spacing.md,
+    gap: LiquidGlassTheme.spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: LiquidGlassTheme.colors.border.light,
   },
   descriptionSection: {
-    marginTop: 16,
-    marginBottom: 12,
+    gap: LiquidGlassTheme.spacing.sm,
   },
   descriptionLabel: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 8,
+    ...LiquidGlassTheme.typography.label.large,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   descriptionText: {
-    fontSize: 14,
-    color: '#475569',
-    lineHeight: 22,
+    ...LiquidGlassTheme.typography.body.medium,
+    color: LiquidGlassTheme.colors.text.secondary,
+    lineHeight: 24,
   },
   websiteSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
+    gap: LiquidGlassTheme.spacing.sm,
+    padding: LiquidGlassTheme.spacing.md,
+    backgroundColor: LiquidGlassTheme.colors.glass.coloredLight,
+    borderRadius: LiquidGlassTheme.borderRadius.sm,
   },
   websiteText: {
-    fontSize: 13,
-    color: '#0ea5e9',
-    textDecorationLine: 'underline',
-  },
-  expandIndicator: {
-    paddingVertical: 12,
-    paddingHorizontal: 22,
-    backgroundColor: '#f8fafc',
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    alignItems: 'center',
-  },
-  expandText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0ea5e9',
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.primary.main,
+    fontWeight: '600',
   },
   footer: {
-    marginHorizontal: 20,
-    marginBottom: 20,
-    padding: 16,
-    borderRadius: 12,
+    margin: LiquidGlassTheme.spacing.xl,
+    padding: LiquidGlassTheme.spacing.xl,
+    borderRadius: LiquidGlassTheme.borderRadius.lg,
   },
   footerText: {
-    fontSize: 13,
-    color: '#92400e',
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.secondary,
     lineHeight: 20,
     textAlign: 'center',
+  },
+  liquidFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 56,
+    overflow: 'hidden',
+  },
+  footerGlassView: {
+    flex: 1,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
+    ...LiquidGlassTheme.shadows.glass.medium,
+  },
+  footerBlurView: {
+    flex: 1,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    ...LiquidGlassTheme.shadows.glass.medium,
+  },
+  footerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 8,
+  },
+  footerFooterText: {
+    ...LiquidGlassTheme.typography.body.small,
+    color: LiquidGlassTheme.colors.text.tertiary,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });

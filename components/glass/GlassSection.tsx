@@ -1,14 +1,16 @@
 import React from "react";
 import { Platform, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { LiquidGlassTheme } from "@/constants/LiquidGlassTheme";
 
 type GlassSectionProps = {
   title?: string;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
+  variant?: "base" | "elevated" | "tinted";
 };
 
-export const GlassSection: React.FC<GlassSectionProps> = ({ title, children, style }) => {
+export const GlassSection: React.FC<GlassSectionProps> = ({ title, children, style, variant = "base" }) => {
   const supportsLiquidGlass = Platform.OS === "ios" && isLiquidGlassAvailable();
 
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -19,7 +21,23 @@ export const GlassSection: React.FC<GlassSectionProps> = ({ title, children, sty
         </GlassView>
       );
     }
-    return <View style={[styles.section, styles.sectionFallback, style as ViewStyle]}>{children}</View>;
+    const glassStyle = LiquidGlassTheme.glass[variant];
+    return (
+      <View
+        style={[
+          styles.section,
+          {
+            backgroundColor: glassStyle.backgroundColor,
+            borderWidth: glassStyle.borderWidth,
+            borderColor: glassStyle.borderColor,
+            ...LiquidGlassTheme.shadows.glass.light,
+          },
+          style as ViewStyle,
+        ]}
+      >
+        {children}
+      </View>
+    );
   };
 
   return (
@@ -32,22 +50,16 @@ export const GlassSection: React.FC<GlassSectionProps> = ({ title, children, sty
 
 const styles = StyleSheet.create({
   section: {
-    padding: 16,
-    borderRadius: 16,
-    gap: 8,
-  },
-  sectionFallback: {
-    backgroundColor: "rgba(255,255,255,0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
+    padding: LiquidGlassTheme.spacing.lg,
+    borderRadius: LiquidGlassTheme.borderRadius.md,
+    gap: LiquidGlassTheme.spacing.sm,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
+    ...LiquidGlassTheme.typography.headline.small,
+    color: LiquidGlassTheme.colors.text.primary,
   },
   sectionBody: {
-    gap: 8,
+    gap: LiquidGlassTheme.spacing.sm,
   },
 });
 
