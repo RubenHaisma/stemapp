@@ -196,7 +196,7 @@ export default function HomeScreen() {
           >
             <View style={styles.footerContent}>
               <Text style={styles.footerText}>
-                De StemAPP • Tweede Kamer 2025
+                De StemAPP • Tweede Kamer 2025 • Built by Incubit
               </Text>
             </View>
           </GlassView>
@@ -213,7 +213,7 @@ export default function HomeScreen() {
           <BlurView intensity={80} tint="light" style={styles.footerBlurView}>
             <View style={styles.footerContent}>
               <Text style={styles.footerText}>
-                De StemAPP • Tweede Kamer 2025
+                De StemAPP • Tweede Kamer 2025 • Built by Incubit
               </Text>
             </View>
           </BlurView>

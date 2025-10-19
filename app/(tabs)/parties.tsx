@@ -165,7 +165,7 @@ export default function PartiesScreen() {
           >
             <View style={styles.footerContent}>
               <Text style={styles.footerFooterText}>
-                De StemAPP • Tweede Kamer 2025
+                De StemAPP • Tweede Kamer 2025 • Built by Incubit
               </Text>
             </View>
           </GlassView>
@@ -182,7 +182,7 @@ export default function PartiesScreen() {
           <BlurView intensity={80} tint="light" style={styles.footerBlurView}>
             <View style={styles.footerContent}>
               <Text style={styles.footerFooterText}>
-                De StemAPP • Tweede Kamer 2025
+                De StemAPP • Tweede Kamer 2025 • Built by Incubit
               </Text>
             </View>
           </BlurView>
