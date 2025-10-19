@@ -28,7 +28,7 @@ export const parties: Party[] = [
     "description": "Sociaal-conservatieve partij rond bestuurlijke vernieuwing en bestaanszekerheid.",
     "color": "#1E6F5C",
     "website": "https://www.nieuwsociaalcontract.nl",
-    "leader": "Pieter Omtzigt",
+    "leader": "Eddy van Hijum",
     "seats_2023": 20
   },
   {
@@ -88,7 +88,7 @@ export const parties: Party[] = [
     "description": "Linkse partij gericht op bestaanszekerheid, zorg en betaalbaar wonen.",
     "color": "#BE0F0A",
     "website": "https://www.sp.nl",
-    "leader": "Lilianne Marijnissen",
+    "leader": "Jimmy Dijk",
     "seats_2023": 5
   },
   {
