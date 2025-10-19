@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import GlassCard from '@/components/glass/GlassCard';
 import GlassSection from '@/components/glass/GlassSection';
-import GlassButton from '@/components/glass/GlassButton';
 
 const { width, height } = Dimensions.get('window');
 
@@ -42,6 +41,7 @@ export default function QuestionnaireScreen() {
   const currentStatement = statements[currentIndex];
   const currentResponse = responses.get(currentStatement.id);
   const progress = ((currentIndex + 1) / statements.length) * 100;
+  const isFinished = responses.size === statements.length && Array.from(responses.values()).every(r => r.response !== 'skip' || responses.size === statements.length);
 
   const handleResponse = async (response: 'agree' | 'disagree' | 'neutral' | 'skip') => {
     try {
@@ -75,13 +75,6 @@ export default function QuestionnaireScreen() {
   };
 
   const isSmall = width < 380 || height < 700;
-  const sideButtonWidth = Math.max(
-    100,
-    Math.min(
-      160,
-      Math.floor((width - (isSmall ? 28 : 40) /* nav padding */ - (isSmall ? 16 : 24) /* gaps */ - 44 /* icon approx */) / 2)
-    )
-  );
 
   return (
     <View style={styles.container}>
@@ -194,62 +187,27 @@ export default function QuestionnaireScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={[styles.skipButton, isSmall && { paddingVertical: 10 }]}
-            onPress={() => handleResponse('skip')}
-            activeOpacity={0.8}
-          >
-            <ChevronRight size={18} color="#6b7280" />
-            <Text style={[styles.skipButtonText, isSmall && { fontSize: 14 }]}>Overslaan</Text>
-          </TouchableOpacity>
+          {!isFinished ? (
+            <TouchableOpacity
+              style={[styles.skipButton, isSmall && { paddingVertical: 10 }]}
+              onPress={() => handleResponse('skip')}
+              activeOpacity={0.8}
+            >
+              <ChevronRight size={18} color="#6b7280" />
+              <Text style={[styles.skipButtonText, isSmall && { fontSize: 14 }]}>Overslaan</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.retakeButton, isSmall && { paddingVertical: 10 }]}
+              onPress={handleReset}
+              activeOpacity={0.8}
+            >
+              <RotateCcw size={16} color="#ef4444" />
+              <Text style={[styles.retakeButtonText, isSmall && { fontSize: 14 }]}>Opnieuw beginnen</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-
-      <GlassSection style={[styles.navigationBar, isSmall && { paddingVertical: 8, paddingHorizontal: 10, marginBottom: 16 }]}>
-        <View style={[styles.navRow, isSmall && { gap: 8 }]}>
-          <TouchableOpacity
-            style={[
-              styles.navButton,
-              styles.previousButton,
-              { width: sideButtonWidth },
-              isSmall && { paddingVertical: 10, paddingHorizontal: 8 },
-              currentIndex === 0 && styles.navButtonDisabled,
-            ]}
-            onPress={handlePrevious}
-            disabled={currentIndex === 0}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={20} color={currentIndex === 0 ? '#9ca3af' : '#0ea5e9'} strokeWidth={2.5} />
-            <Text style={[styles.navButtonText, styles.previousButtonText, isSmall && { fontSize: 14 }]}>
-              Vorige
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.resetIconButton, { padding: isSmall ? 6 : 8 }]}
-            onPress={handleReset}
-            activeOpacity={0.9}
-          >
-            <RotateCcw size={18} color="#ef4444" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.navButton,
-              styles.resultsButton,
-              { width: sideButtonWidth },
-              isSmall && { paddingVertical: 10, paddingHorizontal: 8 },
-            ]}
-            onPress={() => router.push('/(tabs)/results')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.navButtonText, styles.resultsButtonText, isSmall && { fontSize: 14 }]}>
-              Bekijk
-            </Text>
-            <ChevronRight size={20} color="#ffffff" strokeWidth={2.5} />
-          </TouchableOpacity>
-        </View>
-      </GlassSection>
     </View>
   );
 }
@@ -314,6 +272,7 @@ const styles = StyleSheet.create({
   contentFixed: {
     flex: 1,
     padding: 16,
+    paddingBottom: 100,
     gap: 12,
     justifyContent: 'flex-start',
   },
@@ -438,63 +397,17 @@ const styles = StyleSheet.create({
     color: '#0ea5e9',
     fontWeight: '700',
   },
-  navigationBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 12,
-    marginBottom: 16,
-  },
-  navRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  navSideButton: {
-    width: 160,
-  },
-  navButtonGlass: {
-    borderRadius: 10,
-  },
-  navButton: {
+  retakeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f3f4f6',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    paddingVertical: 14,
+    marginTop: 8,
     gap: 6,
   },
-  previousButton: {
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-  },
-  previousButtonText: {
-    color: '#0ea5e9',
-  },
-  navButtonDisabled: {
-    opacity: 0.3,
-  },
-  navButtonText: {
+  retakeButtonText: {
     fontSize: 15,
+    color: '#ef4444',
     fontWeight: '700',
-    color: '#374151',
-  },
-  resultsButton: {
-    backgroundColor: '#0ea5e9',
-  },
-  resultsButtonText: {
-    color: '#ffffff',
-  },
-  resetIconButton: {
-    padding: 12,
-    backgroundColor: '#fef2f2',
-    borderRadius: 12,
   },
 });
