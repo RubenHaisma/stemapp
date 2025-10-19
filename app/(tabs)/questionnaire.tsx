@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
-import { ThumbsUp, ThumbsDown, Minus, Star, ChevronRight, RotateCcw } from 'lucide-react-native';
+import { ThumbsUp, ThumbsDown, Minus, Star, ChevronRight, ChevronLeft, RotateCcw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import GlassCard from '@/components/glass/GlassCard';
@@ -87,6 +87,14 @@ export default function QuestionnaireScreen() {
     <View style={styles.container}>
       <GlassSection style={[styles.progressContainer, isSmall && { paddingVertical: 12, paddingHorizontal: 16 }]}>
         <View style={[styles.progressRow]}>
+          <TouchableOpacity
+            style={[styles.backButton, currentIndex === 0 && styles.backButtonDisabled]}
+            onPress={handlePrevious}
+            disabled={currentIndex === 0}
+            activeOpacity={0.7}
+          >
+            <ChevronLeft size={22} color={currentIndex === 0 ? '#d1d5db' : '#0ea5e9'} strokeWidth={2.5} />
+          </TouchableOpacity>
           <Text style={[styles.progressText, isSmall && { fontSize: 13 }]}>Stelling {currentIndex + 1}/{statements.length}</Text>
         </View>
         <View style={[styles.progressBar, isSmall && { height: 6 }]}>
@@ -199,20 +207,23 @@ export default function QuestionnaireScreen() {
 
       <GlassSection style={[styles.navigationBar, isSmall && { paddingVertical: 8, paddingHorizontal: 10, marginBottom: 16 }]}>
         <View style={[styles.navRow, isSmall && { gap: 8 }]}>
-          <View>
-            <GlassButton
-              title="Vorige"
-              onPress={handlePrevious}
-              style={[
-                styles.navButtonGlass,
-                styles.navSideButton,
-                { width: sideButtonWidth, paddingVertical: 10, paddingHorizontal: 12 },
-                isSmall && { paddingVertical: 8, paddingHorizontal: 10 },
-                currentIndex === 0 && styles.navButtonDisabled,
-              ]}
-              variant="neutral"
-            />
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.navButton,
+              styles.previousButton,
+              { width: sideButtonWidth },
+              isSmall && { paddingVertical: 10, paddingHorizontal: 8 },
+              currentIndex === 0 && styles.navButtonDisabled,
+            ]}
+            onPress={handlePrevious}
+            disabled={currentIndex === 0}
+            activeOpacity={0.7}
+          >
+            <ChevronLeft size={20} color={currentIndex === 0 ? '#9ca3af' : '#0ea5e9'} strokeWidth={2.5} />
+            <Text style={[styles.navButtonText, styles.previousButtonText, isSmall && { fontSize: 14 }]}>
+              Vorige
+            </Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.resetIconButton, { padding: isSmall ? 6 : 8 }]}
@@ -222,19 +233,21 @@ export default function QuestionnaireScreen() {
             <RotateCcw size={18} color="#ef4444" />
           </TouchableOpacity>
 
-          <View>
-            <GlassButton
-              title="Bekijk"
-              onPress={() => router.push('/(tabs)/results')}
-              style={[
-                styles.navButtonGlass,
-                styles.navSideButton,
-                { width: sideButtonWidth, paddingVertical: 10, paddingHorizontal: 12 },
-                isSmall && { paddingVertical: 8, paddingHorizontal: 10 },
-              ]}
-              variant="primary"
-            />
-          </View>
+          <TouchableOpacity
+            style={[
+              styles.navButton,
+              styles.resultsButton,
+              { width: sideButtonWidth },
+              isSmall && { paddingVertical: 10, paddingHorizontal: 8 },
+            ]}
+            onPress={() => router.push('/(tabs)/results')}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.navButtonText, styles.resultsButtonText, isSmall && { fontSize: 14 }]}>
+              Bekijk
+            </Text>
+            <ChevronRight size={20} color="#ffffff" strokeWidth={2.5} />
+          </TouchableOpacity>
         </View>
       </GlassSection>
     </View>
@@ -265,6 +278,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+    gap: 12,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonDisabled: {
+    opacity: 0.3,
   },
   progressBar: {
     height: 8,
@@ -434,22 +461,33 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   navButton: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#f3f4f6',
     paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 6,
+  },
+  previousButton: {
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  previousButtonText: {
+    color: '#0ea5e9',
   },
   navButtonDisabled: {
-    opacity: 0.4,
+    opacity: 0.3,
   },
   navButtonText: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#374151',
   },
   resultsButton: {
-    backgroundColor: '#1e40af',
+    backgroundColor: '#0ea5e9',
   },
   resultsButtonText: {
     color: '#ffffff',

@@ -137,145 +137,145 @@ export const statements: Statement[] = [
   {
     "id": "statement-001",
     "order_index": 1,
-    "text": "Het eigen risico in de zorg moet omlaag of (gedeeltelijk) afgeschaft worden, ook als dat hogere lasten betekent.",
+    "text": "Het eigen risico in de zorg moet worden verlaagd of afgeschaft.",
     "category": "zorg"
   },
   {
     "id": "statement-002",
     "order_index": 2,
-    "text": "Nederland moet de asielinstroom verder beperken en opvang in de regio stimuleren.",
+    "text": "Nederland moet de asielinstroom verder beperken.",
     "category": "migratie"
   },
   {
     "id": "statement-003",
     "order_index": 3,
-    "text": "De AOW-leeftijd moet minder snel stijgen of tijdelijk worden bevroren.",
+    "text": "De AOW-leeftijd moet minder snel stijgen of bevroren worden.",
     "category": "bestaanszekerheid"
   },
   {
     "id": "statement-004",
     "order_index": 4,
-    "text": "De overheid moet fors investeren in defensie en Europese defensiesamenwerking verdiepen.",
+    "text": "Nederland moet fors investeren in defensie en Europese samenwerking.",
     "category": "defensie"
   },
   {
     "id": "statement-005",
     "order_index": 5,
-    "text": "Kernenergie moet een grotere rol krijgen in de energiemix.",
+    "text": "Kernenergie moet een grotere rol krijgen in onze energievoorziening.",
     "category": "klimaat"
   },
   {
     "id": "statement-006",
     "order_index": 6,
-    "text": "Streng stikstofbeleid blijft nodig, ook als dit betekent dat veestapels krimpen.",
+    "text": "Streng stikstofbeleid blijft noodzakelijk, ook als veestapels moeten krimpen.",
     "category": "landbouw"
   },
   {
     "id": "statement-007",
     "order_index": 7,
-    "text": "De rijksoverheid moet meer landelijke regie nemen op woningbouw, desnoods ingrijpen bij gemeenten.",
+    "text": "De rijksoverheid moet meer regie nemen op woningbouw.",
     "category": "wonen"
   },
   {
     "id": "statement-008",
     "order_index": 8,
-    "text": "Inkomsten uit vermogen en winst moeten zwaarder worden belast dan nu.",
+    "text": "Vermogen en winst moeten zwaarder belast worden dan nu.",
     "category": "economie"
   },
   {
     "id": "statement-009",
     "order_index": 9,
-    "text": "Er moet een nationaal referendum komen bij grote dossiers.",
+    "text": "Er moet een nationaal referendum komen bij grote beslissingen.",
     "category": "democratie"
   },
   {
     "id": "statement-010",
     "order_index": 10,
-    "text": "De EU-rol van Nederland mag verder worden verdiept.",
+    "text": "Nederland mag nauwer samenwerken met de Europese Unie.",
     "category": "eu"
   },
   {
     "id": "statement-011",
     "order_index": 11,
-    "text": "Arbeidsmigratie moet strakker worden gereguleerd met sectorquota of plafonds.",
+    "text": "Arbeidsmigratie moet strakker gereguleerd worden met quota.",
     "category": "migratie"
   },
   {
     "id": "statement-012",
     "order_index": 12,
-    "text": "Collegegeld in het eerste studiejaar moet (deels) worden afgeschaft en de basisbeurs verder verbeterd.",
+    "text": "Het collegegeld moet omlaag en de basisbeurs moet verbeterd worden.",
     "category": "onderwijs"
   },
   {
     "id": "statement-013",
     "order_index": 13,
-    "text": "CO2-heffingen en strengere normen voor industrie moeten versneld worden ingevoerd.",
+    "text": "Industrie moet versneld strengere klimaateisen krijgen.",
     "category": "klimaat"
   },
   {
     "id": "statement-014",
     "order_index": 14,
-    "text": "Schiphol en de luchtvaart moeten verder krimpen om klimaat en leefomgeving te beschermen.",
+    "text": "Schiphol moet krimpen voor klimaat en leefomgeving.",
     "category": "klimaat"
   },
   {
     "id": "statement-015",
     "order_index": 15,
-    "text": "Gemeenten moeten tijdelijk huurprijzen kunnen bevriezen in gespannen gebieden.",
+    "text": "Gemeenten moeten huurprijzen tijdelijk kunnen bevriezen.",
     "category": "wonen"
   },
   {
     "id": "statement-016",
     "order_index": 16,
-    "text": "Religieuze en levensbeschouwelijke vrijheid verdient extra wettelijke bescherming, ook in onderwijs en zorg.",
+    "text": "Religieuze vrijheid verdient extra wettelijke bescherming.",
     "category": "waarden"
   },
   {
     "id": "statement-017",
     "order_index": 17,
-    "text": "De overheid moet discriminatie harder aanpakken, inclusief een Nationaal Coordinator met extra bevoegdheden.",
+    "text": "De overheid moet discriminatie harder aanpakken met een speciale coördinator.",
     "category": "waarden"
   },
   {
     "id": "statement-018",
     "order_index": 18,
-    "text": "Er moeten langjarige boer-burgerakkoorden komen voor natuur, water en klimaat met goede betaling.",
+    "text": "Boeren moeten betaald worden voor natuur-, water- en klimaatbeheer.",
     "category": "landbouw"
   },
   {
     "id": "statement-019",
     "order_index": 19,
-    "text": "Nederland moet ruimhartige opvang van oorlogsvluchtelingen blijven bieden, ook als dat lokaal moeite kost.",
+    "text": "Nederland moet oorlogsvluchtelingen blijven opvangen.",
     "category": "migratie"
   },
   {
     "id": "statement-020",
     "order_index": 20,
-    "text": "Big Tech moet strenger worden gereguleerd, bij voorkeur via Europese wetgeving.",
+    "text": "Grote techbedrijven moeten strenger gereguleerd worden.",
     "category": "digitale_economie"
   },
   {
     "id": "statement-021",
     "order_index": 21,
-    "text": "Introduceer een Nederlandse productiviteitsagenda met minder regels en simpeler belastingen voor ondernemers.",
+    "text": "Ondernemers moeten geholpen worden met minder regels en lagere belastingen.",
     "category": "economie"
   },
   {
     "id": "statement-022",
     "order_index": 22,
-    "text": "Het landbouwexportmodel moet in 10-15 jaar omschakelen naar kringloop- en natuurinclusieve productie.",
+    "text": "De landbouw moet omschakelen naar duurzame, natuurinclusieve productie.",
     "category": "landbouw"
   },
   {
     "id": "statement-023",
     "order_index": 23,
-    "text": "Nederland moet meer nationale veiligheidsmaatregelen nemen tegen statelijke dreiging, ook als dat meer bevoegdheden voor diensten betekent.",
+    "text": "Veiligheidsdiensten moeten meer bevoegdheden krijgen tegen buitenlandse dreiging.",
     "category": "veiligheid"
   },
   {
     "id": "statement-024",
     "order_index": 24,
-    "text": "Het primair onderwijs moet structureel kleinere klassen krijgen, betaald uit herschikking van belastingvoordelen.",
+    "text": "Het basisonderwijs moet kleinere klassen krijgen.",
     "category": "onderwijs"
   }
 ];

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Animated, Platform, Linking } from 'react-native';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Users, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useState, useRef, useEffect } from 'react';
@@ -123,10 +123,14 @@ export default function PartiesScreen() {
                       )}
 
                       {party.website && (
-                        <View style={styles.websiteSection}>
+                        <TouchableOpacity
+                          style={styles.websiteSection}
+                          onPress={() => Linking.openURL(party.website)}
+                          activeOpacity={0.7}
+                        >
                           <ExternalLink size={18} color={LiquidGlassTheme.colors.primary.main} strokeWidth={2} />
-                          <Text style={styles.websiteText}>{party.website}</Text>
-                        </View>
+                          <Text style={styles.websiteText}>Bezoek website</Text>
+                        </TouchableOpacity>
                       )}
                     </View>
                   )}
